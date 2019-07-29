@@ -1,0 +1,306 @@
+\documentclass[nobib]{tufte-handout}
+
+
+\usepackage{ifluatex, ifxetex} % проверка, как компилируется файл
+
+% black magic!
+% solving problem with tufte-handout + xelatex
+% http://tex.stackexchange.com/questions/200722/
+% https://tex.stackexchange.com/questions/47576/
+\ifx\ifxetex\ifluatex\else % если xelatex или lualatex
+  \newcommand{\textls}[2][5]{%
+    \begingroup\addfontfeatures{LetterSpace=#1}#2\endgroup
+  }
+  \renewcommand{\allcapsspacing}[1]{\textls[15]{#1}}
+  \renewcommand{\smallcapsspacing}[1]{\textls[10]{#1}}
+  \renewcommand{\allcaps}[1]{\textls[15]{\MakeTextUppercase{#1}}}
+  \renewcommand{\smallcaps}[1]{\smallcapsspacing{\scshape\MakeTextLowercase{#1}}}
+  \renewcommand{\textsc}[1]{\smallcapsspacing{\textsmallcaps{#1}}}
+\fi
+
+% с альтернативного источника:
+%\ifluatex % Allow rendering with LuaTeX by setting up the spacing using fontspec features
+%  \renewcommand\allcapsspacing[1]{{\addfontfeature{LetterSpace=15}#1}}
+%  \renewcommand\smallcapsspacing[1]{{\addfontfeature{LetterSpace=10}#1}}
+%\fi
+
+% lua produces strange notes
+% https://tex.stackexchange.com/questions/328431
+
+\usepackage{fontspec} % работа со шрифтами
+\usepackage{polyglossia} % учим русский как иностранный :)
+
+\setmainlanguage{russian}
+\setotherlanguages{english}
+
+% заменяем --- на тире, << на кавычки и т.д.:
+\defaultfontfeatures{Ligatures = TeX}
+
+% download "Linux Libertine" fonts:
+% http://www.linuxlibertine.org/index.php?id=91&L=1
+\setmainfont{Linux Libertine O} % or Helvetica, Arial, Cambria
+% why do we need \newfontfamily:
+% http://tex.stackexchange.com/questions/91507/
+\newfontfamily{\cyrillicfonttt}{Linux Libertine O}
+\newfontfamily{\cyrillicfont}{Linux Libertine O}
+\newfontfamily{\cyrillicfontsf}{Linux Libertine O}
+
+
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{url} % вставка \url{}
+\usepackage{graphicx} % вставка графиков
+\usepackage{csquotes} % адаптирующиеся кавычки командой \enquote{}
+\usepackage{comment} % ingore everything between \begin{comment} \end{comment}
+\usepackage{answers} % separate problems and solutions
+\usepackage{tikz} % pictures with tikz language
+\usepackage{todonotes} % todo in documents
+
+
+\usepackage{enumitem} % для создания своих нумерующих списков (хак для гиперссылок)
+
+%\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+
+\theoremstyle{definition}
+% \newtheorem{problem}{Задача}
+% \numberwithin{problem}{section}
+
+\Newassociation{sol}{solution}{solution_file}
+% sol — имя окружения внутри задач
+% solution — имя окружения внутри solution_file
+% solution_file — имя файла в который будет идти запись решений
+% можно изменить далее по ходу
+
+
+% very useful during de-bugging!
+% \usepackage[left]{showlabels}
+% \showlabels{hypertarget}
+% \showlabels{hyperlink}
+
+% магия для автоматических гиперссылок задача-решение
+\newlist{myenum}{enumerate}{3}
+% \newcounter{problem}[chapter] % нумерация задач внутри глав
+\newcounter{problem}
+
+\newenvironment{problem}%
+{%
+\refstepcounter{problem}%
+%  hyperlink to solution
+     % \hypertarget{problem:{\thechapter.\theproblem}}{} % нумерация внутри глав
+     \hypertarget{problem:{\theproblem}}{}
+     %\Writetofile{solution_file}{\protect\hypertarget{soln:\thechapter.\theproblem}{}}
+     \Writetofile{solution_file}{\protect\hypertarget{soln:\theproblem}{}}
+     % \begin{myenum}[label=\bfseries\protect\hyperlink{soln:\thechapter.\theproblem}{\thechapter.\theproblem},ref=\thechapter.\theproblem]
+     \begin{myenum}[label=\bfseries\protect\hyperlink{soln:\theproblem}{\theproblem},ref=\theproblem]
+     \item%
+    }%
+    {%
+    \end{myenum}}
+% для гиперссылок обратно надо переопределять окружение
+% это происходит непосредственно перед подключением файла с решениями
+
+
+\theoremstyle{definition}
+\newtheorem{definition}{Определение}
+
+
+
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\newcommand{\I}{\mathbb{I}} % индикатор события
+%% эконометрические сокращения
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Arg}{Arg}
+\DeclareMathOperator{\Corr}{Corr}
+\def \hb{\hat{\beta}}
+\def \hs{\hat{\sigma}}
+\def \htheta{\hat{\theta}}
+\def \s{\sigma}
+\def \hy{\hat{y}}
+\def \hY{\hat{Y}}
+\def \v1{\vec{1}}
+\def \e{\varepsilon}
+\def \he{\hat{\e}}
+\def \z{z}
+\def \hVar{\widehat{\Var}}
+\def \hCorr{\widehat{\Corr}}
+\def \hCov{\widehat{\Cov}}
+\def \cN{\mathcal{N}}
+\let\P\relax
+\DeclareMathOperator{\P}{\mathbb{P}}
+
+
+
+\usepackage[bibencoding = auto,
+backend = biber,
+sorting = nyt, % name-year-title sorting
+style=authoryear]{biblatex}
+
+\addbibresource{ts_intro_book.bib}
+
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ} % для списков с русскими буквами
+\setlist[enumerate, 1]{label=\asbuk*),ref=\asbuk*}
+
+
+
+\title{Учебник по временным рядам: начало}
+\author{Винни-Пух}
+\date{\today}
+
+\begin{document}
+
+
+
+\maketitle
+
+\part{Одномерные временные ряды}
+
+
+\chapter{Стационарные процессы}
+
+
+\Opensolutionfile{solution_file} % [sols_chap_07]
+% в квадратных скобках можно уточнить фактическое имя файла
+
+
+Из курса математического анализа мы знаем разницу между рядами и последовательностями. 
+В последовательности числа записаны одно за другим, скажем, через запятую,
+
+\[
+5, 8, -3, 2, 4, 5, \ldots  
+\]
+
+А ряд — это бесконечная сумма чисел, например,
+
+\[
+0.9 + 0.09 + 0.009 + 0.0009 + \ldots  
+\]
+
+Настала пора дать первое определение и раскрыть глаза!
+
+\begin{definition}
+Временной ряд — это последовательность\marginnote{Да, да, всё верно, временной ряд — это не ряд, ноль — чётное число,
+единица — не простое, а Деда Мороза не существует.} случайных величин. 
+
+Индекс временного ряда может быть бесконечным в обе стороны, 
+\[
+\ldots, y_{-2}, y_{-1}, y_0, y_1, y_2, \ldots  
+\]
+бесконечным в одну сторону,
+\[
+y_1, y_2, y_3, y_4, \ldots  
+\]
+либо конечным,
+\[
+y_1, y_2, y_3, y_4, \ldots, y_T.
+\]
+\end{definition}
+
+Чтобы отличать весь временной ряд от одной конкретной случайной величины, мы будем использовать обозначения:
+
+$y_t$ — одна конкретная случайная величина;
+
+$(y_t) = y_1, y_2, y_3, y_4, \ldots$ — вся последовательность случайных величин.
+
+Если контекст требует, то можно проявить больше аккуратности и указать возможные значения индекса, например, 
+$(y_t)_{t = 1}^{\infty}$.
+
+
+Начнём с самого простого временного ряда — белого шума.
+
+\begin{definition}
+Ряд $(u_t)$ называется белым шумом (white noise), если он удовлетворяет трём свойствам:
+
+\begin{enumerate}
+  \item Нулевое математическое ожидание, $\E(u_t) = 0$ для любого $t$.
+  \item Постоянная дисперсия, $\Var(u_t) = \sigma^2_u$ для любого $t$.
+  \item Нулевая ковариация, $\Cov(u_t, u_s) = 0$ для любых $t\neq s$. 
+\end{enumerate}
+
+\end{definition}
+
+
+Заметим, что случайные величины в белом шуме вполне могут быть зависимы. Например, 
+
+...
+
+
+
+
+\begin{definition}
+Ряд $(y_t)$ называется слабо стационарным (weekly stationary), или просто стационарным, 
+если он удовлетворяет трём свойствам:
+
+\begin{enumerate}
+  \item Постоянное математическое ожидание, $\E(y_t) = \mu$ для любого $t$.
+  \item Постоянная дисперсия, $\Var(y_t) = \gamma_0$ для любого $t$.
+  \item Ковариация двух величин зависит только от их удалённости по времени друг от друга, $\Cov(y_t, y_s) = \gamma_{t-s}$ для любых $t$ и $s$. 
+\end{enumerate}
+
+\end{definition}
+  
+
+
+
+
+\begin{definition}
+Ряд $(y_t)$ называется процессом скользящего среднего порядка $q$ (moving average of order $q$), 
+если он представим в виде:
+
+\[
+y_t = u_t + b_1 u_{t-1} + \ldots b_q u_{t-q},
+\]
+где $(u_t)$ — белый шум. Обозначаем такие процессы мы так: $y_t \sim MA(q)$.
+\end{definition}
+  
+
+
+
+
+
+
+
+
+
+
+
+\Closesolutionfile{solution_file}
+
+
+
+
+
+\section{Решения}
+
+
+% для гиперссылок на условия
+% http://tex.stackexchange.com/questions/45415
+\renewenvironment{solution}[1]{%
+         % add some glue
+         \vskip .5cm plus 2cm minus 0.1cm%
+         {\bfseries \hyperlink{problem:#1}{#1.}}%
+}%
+{%
+}%
+
+
+\input{solution_file}
+
+
+\listoftodos
+
+\section{Источники мудрости}
+
+Источники мудрости, кои авторы постарались не замутить.
+Смело направляйте к ним верблюдов своего любопытства!
+
+\nocite{*}
+
+\printbibliography
+
+
+\end{document}
