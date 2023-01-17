@@ -11,11 +11,11 @@
   \newcommand{\textls}[2][5]{%
     \begingroup\addfontfeatures{LetterSpace=#1}#2\endgroup
   }
-  \renewcommand{\allcapsspacing}[1]{\textls[15]{#1}}
-  \renewcommand{\smallcapsspacing}[1]{\textls[10]{#1}}
-  \renewcommand{\allcaps}[1]{\textls[15]{\MakeTextUppercase{#1}}}
-  \renewcommand{\smallcaps}[1]{\smallcapsspacing{\scshape\MakeTextLowercase{#1}}}
-  \renewcommand{\textsc}[1]{\smallcapsspacing{\textsmallcaps{#1}}}
+  \renewcommand{\allcapsspacing}[1]{\textls[15]\label{1}}
+  \renewcommand{\smallcapsspacing}[1]{\textls[10]\label{1}}
+  \renewcommand{\allcaps}[1]{\textls[15]{\MakeTextUppercase\label{1}}}
+  \renewcommand{\smallcaps}[1]{\smallcapsspacing{\scshape\MakeTextLowercase\label{1}}}
+  \renewcommand{\textsc}[1]{\smallcapsspacing{\textsmallcaps\label{1}}}
 \fi
 
 % с альтернативного источника:
@@ -46,7 +46,7 @@
 \newfontfamily{\cyrillicfontsf}{Linux Libertine O}
 
 
-
+\usepackage{physics}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
@@ -57,7 +57,7 @@
 \usepackage{comment} % ingore everything between \begin{comment} \end{comment}
 \usepackage{answers} % separate problems and solutions
 \usepackage{tikz} % pictures with tikz language
-\usepackage{todonotes} % todo in documents
+% \usepackage{todonotes} % todo in documents
 
 
 \usepackage{enumitem} % для создания своих нумерующих списков (хак для гиперссылок)
@@ -111,27 +111,21 @@
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\card}{card}
 \DeclareMathOperator{\E}{\mathbb{E}}
-\newcommand{\I}{\mathbb{I}} % индикатор события
+
 %% эконометрические сокращения
 \DeclareMathOperator{\Cov}{Cov}
 \DeclareMathOperator{\Arg}{Arg}
 \DeclareMathOperator{\Corr}{Corr}
-\def \hb{\hat{\beta}}
-\def \hs{\hat{\sigma}}
-\def \htheta{\hat{\theta}}
-\def \s{\sigma}
-\def \hy{\hat{y}}
-\def \hY{\hat{Y}}
-\def \v1{\vec{1}}
-\def \e{\varepsilon}
-\def \he{\hat{\e}}
-\def \z{z}
-\def \hVar{\widehat{\Var}}
-\def \hCorr{\widehat{\Corr}}
-\def \hCov{\widehat{\Cov}}
-\def \cN{\mathcal{N}}
+\DeclareMathOperator{\hVar}{\widehat{\Var}}
+\DeclareMathOperator{\hCorr}{\widehat{\Corr}}
+\DeclareMathOperator{\hCov}{\widehat{\Cov}}
+
 \let\P\relax
 \DeclareMathOperator{\P}{\mathbb{P}}
+
+\newcommand{\hb}{\hat{\beta}}
+\newcommand{\I}{\mathbb{I}} % индикатор события
+\newcommand{\cN}{\mathcal{N}}
 
 
 
@@ -145,6 +139,21 @@ style=authoryear]{biblatex}
 \AddEnumerateCounter{\asbuk}{\russian@alph}{щ} % для списков с русскими буквами
 \setlist[enumerate, 1]{label=\asbuk*),ref=\asbuk*}
 
+\usepackage{listings}
+\lstset{ 
+    language=Python,
+    basicstyle=\small\sffamily,
+    numbers=left,
+     numberstyle=\tiny,
+    frame=tb,
+    tabsize=4,
+    columns=fixed,
+    showstringspaces=false,
+    showtabs=false,
+    keepspaces,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue}
+}
 
 
 \title{Учебник по временным рядам: начало}
@@ -161,7 +170,7 @@ style=authoryear]{biblatex}
 
 
 \chapter{Стационарные процессы}
-
+  
 
 \Opensolutionfile{solution_file} % [sols_chap_07]
 % в квадратных скобках можно уточнить фактическое имя файла
@@ -173,6 +182,8 @@ style=authoryear]{biblatex}
 \[
 5, 8, -3, 2, 4, 5, \ldots  
 \]
+
+
 
 А ряд — это бесконечная сумма чисел, например,
 
@@ -201,14 +212,19 @@ y_1, y_2, y_3, y_4, \ldots, y_T.
 \]
 \end{definition}
 
+
+
 Чтобы отличать весь временной ряд от одной конкретной случайной величины, мы будем использовать обозначения:
 
 $y_t$ — одна конкретная случайная величина;
 
 $(y_t) = y_1, y_2, y_3, y_4, \ldots$ — вся последовательность случайных величин.
 
-Если контекст требует, то можно проявить больше аккуратности и указать возможные значения индекса, например, 
+Если контекст требует, то можно проявить больше аккуратности\marginnote{или занудства} 
+и указать возможные значения индекса, например, 
 $(y_t)_{t = 1}^{\infty}$.
+
+
 
 
 Начнём с самого простого временного ряда — белого шума.
@@ -216,19 +232,19 @@ $(y_t)_{t = 1}^{\infty}$.
 \begin{definition}
 Ряд $(u_t)$ называется белым шумом (white noise), если он удовлетворяет трём свойствам:
 
-\begin{enumerate}
-  \item Нулевое математическое ожидание, $\E(u_t) = 0$ для любого $t$.
-  \item Постоянная дисперсия, $\Var(u_t) = \sigma^2_u$ для любого $t$.
-  \item Нулевая ковариация, $\Cov(u_t, u_s) = 0$ для любых $t\neq s$. 
-\end{enumerate}
+%\begin{enumerate}
+%  \item Нулевое математическое ожидание, $\E(u_t) = 0$ для любого $t$.
+%  \item Постоянная дисперсия, $\Var(u_t) = \sigma^2_u$ для любого $t$.
+%  \item Нулевая ковариация, $\Cov(u_t, u_s) = 0$ для любых $t\neq s$. 
+%\end{enumerate}
 
 \end{definition}
 
 
 Заметим, что случайные величины в белом шуме вполне могут быть зависимы. Например, 
 
-...
 
+...
 
 
 
@@ -236,15 +252,20 @@ $(y_t)_{t = 1}^{\infty}$.
 Ряд $(y_t)$ называется слабо стационарным (weekly stationary), или просто стационарным, 
 если он удовлетворяет трём свойствам:
 
-\begin{enumerate}
-  \item Постоянное математическое ожидание, $\E(y_t) = \mu$ для любого $t$.
-  \item Постоянная дисперсия, $\Var(y_t) = \gamma_0$ для любого $t$.
-  \item Ковариация двух величин зависит только от их удалённости по времени друг от друга, $\Cov(y_t, y_s) = \gamma_{t-s}$ для любых $t$ и $s$. 
-\end{enumerate}
+%\begin{enumerate}
+%  \item Постоянное математическое ожидание, $\E(y_t) = \mu$ для любого $t$.
+%  \item Постоянная дисперсия, $\Var(y_t) = \gamma_0$ для любого $t$.
+%  \item Ковариация двух величин зависит только от их удалённости по времени друг от друга, $\Cov(y_t, y_s) = \gamma_{t-s}$ для любых $t$ и $s$. 
+%\end{enumerate}
 
 \end{definition}
-  
 
+
+
+
+Из третьего условия на ковариацию $\Cov(y_t, y_s) = \gamma_{t-s}$ следует постоянство дисперсии,
+достаточно подставить $t=s$ и увидеть, что $\Cov(y_t, y_t) = \Var(y_t) = \gamma_0$. 
+Мы выписали второе свойство отдельно от третьего, чтобы лучше его выделить. 
 
 
 
@@ -258,22 +279,405 @@ y_t = u_t + b_1 u_{t-1} + \ldots b_q u_{t-q},
 где $(u_t)$ — белый шум. Обозначаем такие процессы мы так: $y_t \sim MA(q)$.
 \end{definition}
   
+Процесс скользящего среднего — это статистическая модель. 
+Название скользящего среднего имеет одна из простых процедур сглаживания ряда.
+
+
+\chapter{Сглаживание ряда}
+
+При сглаживании ряда мы из исходного ряда $(y_t)$ получаем новый ряд $(\tilde y_t)$ с меньшей изменьчивостью.
+Количество наблюдений при этом может как немного поменяться, так и сохраниться, в зависимости от конкретного алгоритма. 
+
+\begin{definition}
+  Взятие скользящего среднего с шириной окна $h=3$ — алгоритм сглаживания с формулой
+  \[
+  \tilde y_t = \frac{y_{t-1} + y_t + y_{t+1}}{3}.  
+  \]
+  Для краткости можно использовать обозначение $\tilde y = MA(y)$. 
+\end{definition}
+
+Как выглядит скользящее среднее с другой нечётной шириной окна читатель может попробовать догадаться сам,
+к примеру, выписав формулу для скользящего среднего с шириной окна $h=5$.
 
 
 
 
+\section{LOESS}
+
+Обычная регрессия (ordinary least squares) проводит одну линию $\hat y_t = \hat \beta_1 + \hat \beta_2 x_t$.
+В роли $x_t$ может быть просто само время $t$. 
+
+Вспомним целевую функцию обычной регрессии
+\[
+Q(\hat\beta_1, \hat\beta_2) = \sum_{t=1}^T (y_t - \hat y_t)^2 = \sum_{t=1}^T (y_t - (\hat \beta_1 + \hat \beta_2 x_t))^2.
+\]
+В результате минимизации 
+\[
+  Q(\hat\beta_1, \hat\beta_2) \to \underset{\hat\beta_1, \hat\beta_2}{Q(\hat\beta_1, \hat\beta_2)}
+\]
+получается единственное значение $\hat\beta_1$ и $\hat\beta_2$. 
+
+LOESS = LOcal regrESSion = ЛОкальная регрЕССия 
+
+LOESS проводит свою линию регрессии для каждого $x$.
+Целевая функция теперь зависит от абсциссы точки $x$, в которой мы строим регрессию,
+\[
+Q(\hat\beta_1, \hat\beta_2) = \sum_{t=1}^T K(x_t, x) (y_t - \hat y_t)^2 = \sum_{t=1}^T K(x_t, x) (y_t - (\hat \beta_1 + \hat \beta_2 x_t))^2.
+\]
+Функция весов $K(x_t, x)$ должна давать большой положительный вес точкам $x_t$ рядом с точкой $x$ и маленький положительный, 
+или даже нулевой, вес точкам $x_t$ далеко от точки $x$. 
+
+Например, в качестве функции весов $K(x_t, x)$ можно использовать 
+\[
+K(x_t, x) = \exp(-\frac{(x_t - x)^2}{h^2}).
+\]
+При $h \to \infty$ мы получим обычные оценки метода наименьших квадратов $\hat\beta_1(x) = \hat\beta_1^{\text{OLS}}$, 
+$\hat\beta_2(x) = \hat\beta_2^{\text{OLS}}$.
+
+Функция весов может быть и такой
+\[
+K(x_t, x) = \begin{cases}
+1, \text{ если } x_t \text{ — это один из пяти ближайших соседей }x, \\
+0, \text{ иначе}
+\end{cases}.
+\]
+
+Оптимизируем мы по прежнему по двум переменным,
+\[
+  Q(\hat\beta_1, \hat\beta_2, x) \to \underset{\hat\beta_1, \hat\beta_2}{Q(\hat\beta_1, \hat\beta_2)}.
+\]
+Задача оптимизации — выпуклая, есть решение в явном виде. 
+Только теперь получаются оптимальные коэффициенты, зависящие от точки $x$, $\hat\beta_1(x)$ и $\hat\beta_2(x)$.
+
+Для получения сглаженного значения $\tilde y_t$ мы берём $x_t = t$ и
+\[
+\tilde y_t = \hat\beta_1(t) + \hat\beta_2(t) t.
+\]
 
 
-\chapter{R — введение}
+\chapter{STL}
 
-В R есть много пакетов для работы с временными рядами, в учебнике мы будем использовать лишь их малую часть. 
+Изложим упрощённый вариант STL-алгоритма для месячных данных без выбросов. 
+
+\begin{enumerate}
+  \item Положим $\text{trend}_t = 0$ и $\text{season}_t = 0$.
+  \item Детрендируем исходный ряд,
+  \[
+  D_t = y_t - \text{trend}_t.  
+  \]
+  \item Разрежем детрендированный ряд $(D_t)$ на двенадцать подрядов по месяцам. 
+  \[
+  (D_t) \to (D_t^{jan}), (D_t^{feb}), \ldots, (D_t^{dec}).
+  \]
+  \item Сгладим каждый подряд с помощью LOESS:
+  \[
+  C^{jan} = LOESS(D^{jan}), \ldots, C^{dec} = LOESS(D^{dec})
+  \]
+  \item Соберём двенадцать подрядов в один ряд
+  \[
+    (C_t^{jan}), (C_t^{feb}), \ldots, (C_t^{dec}) \to (C_t) 
+  \]
+  \item Сильно сгладим собранный ряд
+  \[
+   L = LOESS(MA(MA(C))).
+  \]
+  \item Обновим сезонную составляющую 
+  \[
+  \text{season}_t = C_t - L_t.
+  \]
+  \item Обновим тренд
+  \[
+  \text{trend}_t = y_t - \text{season}_t.
+  \]
+  
+  Далее перейдём к шагу 2 и пройдём шаги 2-8 ещё раз.
+\end{enumerate}
 
 
 
 
+\section{DLT}
+
+Вспомним ETS(A, Ad, A) модель в структурной форме. 
+\[
+\begin{cases}
+y_t = (\ell_{t-1} + \phi b_{t-1}) + s_{t-12} + u_t \\
+s_{t} = s_{t-12} + \gamma u_t \\
+\ell_t = \ell_{t-1} + \phi b_{t-1} + \alpha u_t \\
+b_t = \phi b_{t-1} + \beta u_t \\
+u_t \sim \text{Normal}(\text{loc} = 0, \text{scale} = \sigma). \\
+\end{cases}
+\] 
+Стандартной ссылкой по ETS моделям является
+\cite{hyndman2018forecasting}.
+
+Чтобы перейти к DLT модели сделаем ряд обобщений:
+
+\begin{itemize}
+\item  Добавим в наблюдаемый процесс $y_t$ регрессионную составляющую:
+\[
+  r_t = \beta_1 x_{t1} + \beta_2 x_{t2}.
+\]
+\item Добавим в наблюдаемый процесс глобальный тренд, например, линейный:
+\[
+g_t = \delta_1 + \delta_2 t.
+\]
+\item  Перейдем от нормального распределения ошибки к распределению Стьюдента,
+\[
+u_t \sim \text{Student}(\text{df} = \nu, \text{loc} = 0, \text{scale} = \sigma).
+\]
+\end{itemize}
+
+Кроме того, в описании DLT модели по сравнению с ETS моделью почему-то сдвинут индекс у сезонной составляющей. 
+То есть величина, называемая $s_t$ у Хиндмана в \cite{hyndman2018forecasting}, в статье \cite{ng2020orbit} названа $s_{t+12}$. 
+Поэтому уравнение на сезонную составляющую принимает вид 
+\[
+s_{t+12} = s_{t} + \gamma u_t.
+\]
+С учётом новых составляющих и сдвига индекса у сезонности уравнение на наблюдаемый $y_t$ примет вид
+\[
+y_t = g_t + (\ell_{t-1} + \phi b_{t-1}) + s_t + r_t + u_t.
+\]
+
+
+# DLT модель
+
+Наблюдаемый ряд $y_t$ раскладывается в сумму составляющих: глобальный
+тренд, локальное отклонение от глобального тренда, сезонная
+составляющая, регрессионная составляющая, ошибка. 
+\[
+y_t = g_t + (\ell_{t-1} + \phi b_{t-1}) + s_t + r_t + u_t 
+\] \label{eq-y}
+
+Глобальный тренд $g_t$ может быть задан по-разному. Например, линейно 
+\[
+g_t = \gamma_1 + \gamma_2 t.
+\]
+
+Сезонная составляющая плавно меняется во времени, 
+\[
+s_{t+12} = s_t + \gamma u_t.
+\] \label{eq-s}
+
+Скорость локального тренда плавно меняется, 
+\[
+b_t = \phi b_{t-1} + \beta u_t.
+\] \label{eq-b}
+
+Локальный тренд 
+\[
+\ell_t = \ell_{t-1} + \phi b_{t-1} + \alpha u_t.
+\] \label{eq-ell}
+
+Регрессионная составляющая на примере двух регрессоров, 
+\[
+r_t = \beta_1 x_{t1} + \beta_2 x_{t2}.
+\] 
+Ошибка, 
+\[
+u_t \sim \text{Student}(\text{df} = \nu, \text{loc} = 0, \text{scale} = \sigma).
+\]
+
+Одной системой, 
+\[
+\begin{cases}
+y_t = g_t + (\ell_{t-1} + \phi b_{t-1}) + s_t + r_t + u_t \\
+g_t = \gamma_1 + \gamma_2 t \\
+s_{t+12} = s_t + \gamma u_t \\
+r_t = \beta_1 x_{t1} + \beta_2 x_{t2} \\
+\ell_t = \ell_{t-1} + \phi b_{t-1} + \alpha u_t \\
+b_t = \phi b_{t-1} + \beta u_t \\
+u_t \sim \text{Student}(\text{df} = \nu, \text{loc} = 0, \text{scale} = \sigma). \\
+\end{cases}
+\] 
+Используя формулу для $\ell_t$ можно записать $y_t$ также в виде 
+\[
+y_t = g_t + \ell_t + s_t + r_t + (1-\alpha)u_t.
+\] \label{eq-y-bis}
+
+\subsection{Рекуррентные соотношения}
+
+Можно элегантно отказаться от $u_t$ в уравнениях на $s_{t+12}$, $\ell_t$
+и $b_t$. Это полезно для описания модели на вероятностных языках
+программирования, будь то stan, numpyro или что-то ещё.
+
+Выразим ошибку $u_t$ из формулы для локального тренда \ref{eq-ell} и
+подставим в формулу для скорости роста локального тренда \ref{eq-b}: 
+\[
+b_t = \phi b_{t-1} + \frac{\beta}{\alpha}(\ell_t - \ell_{t-1} - \phi b_{t-1}). 
+\] 
+Перегруппируем и увидим, что скорость роста локального тренда $b_t$
+является средневзвешенным, 
+\[
+b_t = \frac{\beta}{\alpha}(\ell_t - \ell_{t-1}) + \left(1 - \frac{\beta}{\alpha}\right) \phi b_{t-1}.
+\] 
+Можно определить $\rho_b = \frac{\beta}{\alpha}$, и тогда 
+\[
+b_t = \rho_b(\ell_t - \ell_{t-1}) + (1-\rho_b) \phi b_{t-1}.
+\] 
+В коде пакета orbit на stan соответствующая строка имеет вид
+
+\begin{lstlisting}
+b[t] = slp_sm * (l[t] - l[t-1]) + (1 - slp_sm) * DAMPED_FACTOR * b[t-1];
+\end{lstlisting}
+
+Теперь выразим ошибку $u_t$ из \ref{eq-y} и подставим в \ref{eq-ell}. 
+\[
+\ell_t = \ell_{t-1} + \phi b_{t-1} + \alpha (y_t - g_t - \ell_{t-1} - \phi b_{t-1} - s_t - r_t).
+\] 
+Перегруппируем и снова получаем вид средневзвешенного. 
+\[
+\ell_t = \alpha (y_t - g_t - s_t - r_t) + (1-\alpha)(\ell_{t-1} + \phi b_{t-1}).
+\] 
+Смотрим на исходный код модели в stan,
+
+\begin{lstlisting}
+lt_sum[t] = l[t-1] + DAMPED_FACTOR * b[t-1];
+l[t] = lev_sm * (RESPONSE[t] - gt_sum[t] - s_t - r[t]) + (1 - lev_sm) * lt_sum[t];
+\end{lstlisting}
+
+На этот раз выразим ошибку $u_t$ из \ref{eq-y-bis} и подставим в \ref{eq-s}. 
+\[
+s_{t+12} = s_t + \frac{\gamma}{1-\alpha}(y_t - g_t - \ell_t - s_t - r_t).
+\] 
+Перегруппируем и получаем вид средневзешенного, 
+\[
+s_{t+12} = \frac{\gamma}{1-\alpha}(y_t - g_t - \ell_t - r_t) + \left( 1 -  \frac{\gamma}{1-\alpha} \right)s_t.
+\] 
+При обозначении $\rho_s = \frac{\gamma}{1-\alpha}$ получаем 
+\[
+s_{t+12} = \rho_s(y_t - g_t - \ell_t - r_t) + ( 1 -  \rho_s) s_t.
+\] 
+Соответствующий фрагмент кода в stan,
+
+\begin{lstlisting}
+s[t + SEASONALITY] = sea_sm * (RESPONSE[t] - gt_sum[t] - l[t]  - r[t]) + (1 - sea_sm) * s_t;
+\end{lstlisting}
+
+Замечаем, что в статье \cite{ng2020orbit} в описании DLT модели есть пара
+описок. 
+Пропущено $\phi$ перед $b_{t-1}$ в рекуррентной формуле для
+$\ell_t$. Пропущено $g_t$ в рекуррентной формуле для $s_{t+m}$.
+
+\subsection{Начальные условия}
+
+\[
+b_1 = 0
+\]
+
+\[
+g_1 = 
+\]
+
+\[
+r_1 = 
+\]
+
+\[
+s_{12} = -(s_1 + s_2 + \ldots + s_{11}) 
+\]
+
+\[
+\ell_1 = y_1 - g_1 - s_1 - r_1
+\]
 
 
 
+\subsection{Априорные распределения}
+
+При $t\in \{1, 2, \ldots, 11\}$,
+\[
+s_t \sim \text{Normal}(\text{loc} = 0, \text{scale} = \sigma_{?})
+\]
+
+\begin{lstlisting}
+  for (i in 1:(SEASONALITY - 1))
+    init_sea[i] ~ normal(0, SEASONALITY_SD); 
+\end{lstlisting}
+
+
+\[
+\beta_j \sim \text{Normal}(\text{loc} = \mu_j, \text{scale} = \sigma_j),
+\] 
+где $\mu_j$, $\sigma_j$ — гиперпараметры, по умолчанию равные
+$\mu_j = 0$ и $\sigma_j = 1$.
+
+\[
+\sigma \sim \text{HalfCauchy}(\text{loc} = 0, \text{scale} = \gamma_0),
+\] 
+где $\gamma_0$ ...
+
+
+\section{Тесты на прогнозную силу}
+
+\subsection{Тест Диболда-Мариано}
+
+Предпосылки:
+
+Два прогноза, $\hat y_t^A$ и $\hat y_t^B$. 
+Разница произвольных метрик качества,
+\[
+d_t = (\hat y_t^A - y_t)^2 - (\hat y_t^B - y_t)^2.
+\]
+
+Процесс $(d_t)$ стационарный. Другими словами $\E(d_t) = \mu$, 
+$\Cov(d_t, d_{t-k}) = \gamma_k$, в частности, $\Var(d_t) = \gamma_0$.
+
+Гипотезы:
+
+$H_0$: $\E(d_t) = 0$;
+
+$H_a$: $\E(d_t) \neq 0$;
+
+Тестовая статистика при верной $H_0$:
+
+\[
+DM = \frac{\bar d - 0}{se(\bar d)} \to \cN(0;1)
+\]
+Трудность возникает только в оценке $se(\bar d)$, так как значения $d_t$ коррелированы. 
+
+Как правило оценивают регрессию вектора $d_t$ на константу и используют робастную стандартную ошибку $se_{HAC}$. 
+\[
+\hat d_t = \hat \beta_1, \quad DM = \frac{\hat\beta_1 - 0}{se_{HAC}(\hat\beta_1)}.
+\]
+
+В качестве альтернативного подхода можно дополнительно предположить, что $(d_t)$ описывается стационарным $ARMA(p, q)$ процессом с небольшими $p$ и $q$ и рассчитать $se(\bar d)$ в рамках этого предположения. 
+
+\subsection{RC и SPA тесты}
+
+RC (Reality Check) тест Уайта и SPA (Superior Predictive Ability) тест Хансена обобщают тест Диболда-Мариано на случай сравнения множества прогнозов против одного эталонного. 
+
+Для обоих тестов используется стационарный бутстрэп.
+Опишем стационарный бутстрэп на примере более простой задачи.
+
+## Кратко про стационарный бутстрэп 
+
+Представим себе, что у нас есть ряд $y_1$, \ldots, $y_T$, и мы хотим построить доверительный интервал для $\rho = \Corr(y_t, y_{t-1})$ с помощью бутстрэпа. 
+
+Если использовать обычный бутстрэп, который из исходной выборки $(y_t)$ много раз делает случайную выборку с повторениями, то структура временного ряда будет разрушаться при создании бутстрэп-выборок, и оценка корреляции по бустрэп-выборкам будет каждый раз примерно нулевой. 
+
+Алгоритм стационарного бутстрэпа пытается решить эту проблему. 
+На входе у нас временной ряд $y_1$, \ldots, $y_T$.
+На выходе мы хотим получить бустрэп копию этого ряда той же длины $y_1^*$, \ldots, $y_T^*$.
+
+1. Выберем параметр вероятности $p$. О правилах выбора чуть позже. 
+2. Выберем случайный момент времени $s \in \{1, \ldots, T\}$ и запишем $y_s$ очередным элементом в бутстрэп копию. 
+
+3. С вероятностью $p$ вернемся к шагу $2$, с вероятностью $1-p$ пойдём дальше. 
+
+4. Увеличим $s$ на 1, запишем $y_s$ очередным элементом в бутстрэп копию и перейдем к подкидыванию монетки на шаге 3. 
+
+Алгоритм продолжается до тех пор, пока не наберем $T$ наблюдений в бутстрэп-копию ряда. 
+
+Теперь мы можем построить бутстрэп-доверительный интервал для корреляции. Например, с помощью перцентильного бутстрэпа.
+
+По исходному ряду создаем 10000 бутстрэп-копий ряда. По каждой бутстрэп-копии считаем оценку корелляции. Удаляем по 2.5\% самых больших и самых маленьких оценок корреляции. Полученные края и будут границами доверительного интервала. 
+
+Про выбор $p$. 
+
+...
+
+Возвращаемся к тестам. 
 
 
 
@@ -292,7 +696,7 @@ y_t = u_t + b_1 u_{t-1} + \ldots b_q u_{t-q},
 \renewenvironment{solution}[1]{%
          % add some glue
          \vskip .5cm plus 2cm minus 0.1cm%
-         {\bfseries \hyperlink{problem:#1}{#1.}}%
+         {\bfseries \hyperlink{problem:#1}\label{1.}}%
 }%
 {%
 }%
